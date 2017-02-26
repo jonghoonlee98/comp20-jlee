@@ -1,0 +1,18 @@
+body
+{
+	text-align: center;
+}
+
+#title
+{
+	font-family: "Arial";
+	color: grey;
+	font-weight: 900;
+	font-variant: small-caps;
+}
+
+#lyrics
+{
+	font-family: "Arial";
+	font-weight: 500;
+}
