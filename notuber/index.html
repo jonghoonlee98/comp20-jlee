@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>The Black Car Service</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXOAg3CQa2WlYnP7e_9pLnsEA4lVhZj4c&libraries=geometry"></script>
+		<link rel="stylesheet" href="style.css" />
+		
+		<script>
+			var myLat = 0;
+			var myLng = 0;
+			var id= "svEQIneI";
+			var request = new XMLHttpRequest();
+			var me = new google.maps.LatLng(myLat, myLng);
+			var myOptions = {
+						zoom: 13, // The larger the zoom number, the bigger the zoom
+						center: me,
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					};
+			var mode;
+			var map;
+			var marker;
+			var infowindow = new google.maps.InfoWindow();
+			
+			function init()
+			{
+				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+				getMyLocation();
+			}
+			
+			function getMyLocation() {
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(position) {
+						myLat = position.coords.latitude;
+						myLng = position.coords.longitude;
+						renderMap();
+						sendData();
+					});
+				}
+				else {
+					alert("Geolocation is not supported by your web browser.");
+				}
+			}
+			function renderMap()
+			{
+				me = new google.maps.LatLng(myLat, myLng);
+				map.panTo(me);
+				marker = new google.maps.Marker({
+					position: me,
+					title: id,
+					icon:'Gorilla.png'
+				});
+				marker.setMap(map);
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(marker.title);
+					infowindow.open(map, marker);
+				});
+			}
+			function sendData()
+			{
+				request.open("POST", "https://defense-in-derpth.herokuapp.com/submit", true);
+				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
+				request.onreadystatechange = function() {
+    				if(request.readyState == 4 && request.status == 200) {
+        				data=request.responseText;
+        				jsonData=JSON.parse(data);
+        				if(jsonData.passengers)
+        				{
+        					mode="driver"
+        					for(var i=0;i<jsonData.passengers.length;i++) {
+        						var name=jsonData.passengers[i].username;
+        						var latitude=jsonData.passengers[i].lat;
+        						var longitude=jsonData.passengers[i].lng;
+        						addPeople(name,latitude,longitude);
+        					}
+        				}
+        				if(jsonData.vehicles)
+        				{
+        					mode="passenger"
+        					for(var i=0;i<jsonData.vehicles.length;i++) {
+        						var name=jsonData.vehicles[i].username;
+        						var latitude=jsonData.vehicles[i].lat;
+        						var longitude=jsonData.vehicles[i].lng;
+        						addPeople(name,latitude,longitude);
+        					}
+        				}
+    				}	
+				}
+				request.send("username="+id+"&lat="+myLat+"&lng="+myLng);
+			}
+			function addPeople(name,latitude,longitude)
+			{
+				var useIcon
+				if(mode=="driver"){
+					useIcon='passenger.png';
+				}
+				if(mode=="passenger"){
+					useIcon='vehicle.png';
+				}
+				var person=new google.maps.LatLng(latitude,longitude);
+				var distance=0.000621371*google.maps.geometry.spherical.computeDistanceBetween(me,person);
+				distance=Math.round(distance*1000)/1000;
+				var mark = new google.maps.Marker({
+					position: person,
+					title: "User: "+ name + ", " + distance + " mi",
+					icon: useIcon
+				});
+
+				mark.setMap(map);
+				google.maps.event.addListener(mark, 'click', function() {
+					infowindow.setContent(mark.title);
+					infowindow.open(map, mark);
+				});
+			}
+		</script>
+	</head>
+	
+	<body onload="init()">
+		<div id="map_canvas"></div>
+	</body>
+</html>
