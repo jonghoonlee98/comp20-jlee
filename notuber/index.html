@@ -17,7 +17,7 @@
 			var request = new XMLHttpRequest();
 			var me = new google.maps.LatLng(myLat, myLng);
 			var myOptions = {
-						zoom: 13, // The larger the zoom number, the bigger the zoom
+						zoom: 13,
 						center: me,
 						mapTypeId: google.maps.MapTypeId.ROADMAP
 					};
@@ -32,7 +32,8 @@
 				getMyLocation();
 			}
 			
-			function getMyLocation() {
+			function getMyLocation() //retrieves current location
+			{
 				if (navigator.geolocation) {
 					navigator.geolocation.getCurrentPosition(function(position) {
 						myLat = position.coords.latitude;
@@ -45,7 +46,7 @@
 					alert("Geolocation is not supported by your web browser.");
 				}
 			}
-			function renderMap()
+			function renderMap() //creates map and centers it at current location
 			{
 				me = new google.maps.LatLng(myLat, myLng);
 				map.panTo(me);
@@ -60,7 +61,7 @@
 					infowindow.open(map, marker);
 				});
 			}
-			function sendData()
+			function sendData() //sends data to API and receives a response text containing data of other users
 			{
 				request.open("POST", "https://defense-in-derpth.herokuapp.com/submit", true);
 				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
@@ -92,7 +93,7 @@
 				}
 				request.send("username="+id+"&lat="+myLat+"&lng="+myLng);
 			}
-			function addPeople(name,latitude,longitude)
+			function addPeople(name,latitude,longitude) //creates markers for passengers/vehicles(dependent) and clicking on a marker shows ID and distance
 			{
 				var useIcon
 				if(mode=="driver"){
