@@ -63,7 +63,7 @@
 			}
 			function sendData() //sends data to API and receives a response text containing data of other users
 			{
-				request.open("POST", "https://defense-in-derpth.herokuapp.com/submit", true);
+				request.open("POST", "https://secure-lowlands-99413.herokuapp.com/submit", true);
 				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
 				request.onreadystatechange = function() {
     				if(request.readyState == 4 && request.status == 200) {
@@ -91,7 +91,8 @@
         				}
     				}	
 				}
-				request.send("username="+id+"&lat="+myLat+"&lng="+myLng);
+				var info="username="+id+"&lat="+myLat+"&lng="+myLng;
+				request.send(info);
 			}
 			function addPeople(name,latitude,longitude) //creates markers for passengers/vehicles(dependent) and clicking on a marker shows ID and distance
 			{
